@@ -4,29 +4,26 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.melikalihocagil.saglikcell.presentetion.navigation.Screen
-import com.melikalihocagil.saglikcell.presentetion.screens.AnalyticsScreen
-import com.melikalihocagil.saglikcell.presentetion.screens.AuthScreen
-import com.melikalihocagil.saglikcell.presentetion.screens.DashboardScreen
-import com.melikalihocagil.saglikcell.presentetion.screens.MetricEntryScreen
-import com.melikalihocagil.saglikcell.presentetion.screens.PremiumScreen
+import com.melikalihocagil.saglikcell.presentetion.navigation.authGraph
+import com.melikalihocagil.saglikcell.presentetion.navigation.featureGraph
+import com.melikalihocagil.saglikcell.presentetion.navigation.mainGraph
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -40,6 +37,13 @@ fun SaglikCellAppScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    // Bottom Bar gösterilmeli mi? (Sadece mainGraph içindeki ana ekranlarda)
+    val shouldShowBottomBar = remember(currentDestination) {
+        Screen.bottomNavItems.any { currentDestination?.hasRoute(it::class) == true }
+    }
 
     // Tek seferlik olayları (Effect) dinleme
     LaunchedEffect(Unit) {
@@ -59,7 +63,44 @@ fun SaglikCellAppScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = {
+            if (shouldShowBottomBar) {
+                NavigationBar {
+                    Screen.bottomNavItems.forEach { screen ->
+                        val selected = currentDestination?.hierarchy?.any { it.hasRoute(screen::class) } == true
+                        NavigationBarItem(
+                            selected = selected,
+                            onClick = {
+                                navController.navigate(screen) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            icon = {
+                                val icon = when (screen) {
+                                    is Screen.Dashboard -> Icons.Default.Home
+                                    is Screen.Profile -> Icons.Default.Person
+                                    else -> Icons.Default.Home
+                                }
+                                Icon(icon, contentDescription = null)
+                            },
+                            label = {
+                                val label = when (screen) {
+                                    is Screen.Dashboard -> "Ana Sayfa"
+                                    is Screen.Profile -> "Profil"
+                                    else -> ""
+                                }
+                                Text(label)
+                            }
+                        )
+                    }
+                }
+            }
+        }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -71,37 +112,9 @@ fun SaglikCellAppScreen(
                 navController = navController,
                 startDestination = Screen.Login
             ) {
-                composable<Screen.Login> {
-                    AuthScreen(
-                        onLoginSuccess = {
-                            navController.navigate(Screen.Dashboard) {
-                                popUpTo(Screen.Login) { inclusive = true }
-                            }
-                        }
-                    )
-                }
-                composable<Screen.Dashboard> {
-                    DashboardScreen(
-                        onNavigateToEntry = { navController.navigate(Screen.MetricEntry) },
-                        onNavigateToAnalytics = { navController.navigate(Screen.Analytics) },
-                        onNavigateToPremium = { navController.navigate(Screen.Premium) }
-                    )
-                }
-                composable<Screen.Profile> {
-                    // ProfileScreen(...) yer tutucu
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        androidx.compose.material3.Text("Profile Screen")
-                    }
-                }
-                composable<Screen.MetricEntry> {
-                    MetricEntryScreen(onBack = { navController.popBackStack() })
-                }
-                composable<Screen.Analytics> {
-                    AnalyticsScreen(onBack = { navController.popBackStack() })
-                }
-                composable<Screen.Premium> {
-                    PremiumScreen(onSuccess = { navController.popBackStack() })
-                }
+                authGraph(navController)
+                mainGraph(navController)
+                featureGraph(navController)
             }
 
             // Global Loading Overlay

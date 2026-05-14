@@ -35,7 +35,7 @@ class SaglikCellAppViewModel(
      * Token değişimlerini sürekli dinleyerek State'i günceller (SSoT).
      */
     private fun observeToken() {
-        tokenManager.getToken()
+        tokenManager.getAccessToken()
             .onEach { token ->
                 _uiState.update { 
                     it.copy(
@@ -55,7 +55,7 @@ class SaglikCellAppViewModel(
 
     private fun logout() {
         viewModelScope.launch {
-            tokenManager.deleteToken()
+            tokenManager.deleteTokens()
             _effect.send(SaglikCellAppEffect.NavigateToLogin)
         }
     }

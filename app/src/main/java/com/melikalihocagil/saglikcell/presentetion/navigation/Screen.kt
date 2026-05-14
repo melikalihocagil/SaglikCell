@@ -16,6 +16,9 @@ sealed class Screen {
     data object Login : Screen()
 
     @Serializable
+    data class Otp(val phoneNumber: String) : Screen()
+
+    @Serializable
     data object Profile : Screen()
 
     @Serializable
@@ -26,4 +29,12 @@ sealed class Screen {
 
     @Serializable
     data object Premium : Screen()
+
+    // Bottom Navigation'da gösterilecek olan ana ekranlar
+    companion object {
+        val bottomNavItems = listOf(
+            Dashboard,
+            Profile
+        )
+    }
 }

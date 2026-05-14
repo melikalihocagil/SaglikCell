@@ -5,6 +5,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.melikalihocagil.saglikcell.data.manager.TokenManagerImpl
 import com.melikalihocagil.saglikcell.domain.manager.TokenManager
 import com.melikalihocagil.saglikcell.presentetion.SaglikCellAppViewModel
+import com.melikalihocagil.saglikcell.presentetion.screens.auth.AuthViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -20,4 +21,5 @@ val appModule = module {
 
     // ViewModels
     viewModelOf(::SaglikCellAppViewModel)
+    viewModelOf(::AuthViewModel)
 }

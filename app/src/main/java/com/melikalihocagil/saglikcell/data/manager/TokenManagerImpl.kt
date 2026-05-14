@@ -10,31 +10,40 @@ import kotlinx.coroutines.flow.map
 
 /**
  * TokenManager arayüzünün DataStore tabanlı implementasyonu.
- * Token verilerini güvenli (isteğe bağlı olarak şifrelenmiş) şekilde saklar.
+ * RTR (Refresh Token Rotation) desteği ile tokenları güvenli saklar.
  */
 class TokenManagerImpl(
     private val dataStore: DataStore<Preferences>
 ) : TokenManager {
 
     companion object {
-        private val TOKEN_KEY = stringPreferencesKey("jwt_token")
+        private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
+        private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
     }
 
-    override fun getToken(): Flow<String?> {
+    override fun getAccessToken(): Flow<String?> {
         return dataStore.data.map { preferences ->
-            preferences[TOKEN_KEY]
+            preferences[ACCESS_TOKEN_KEY]
         }
     }
 
-    override suspend fun saveToken(token: String) {
-        dataStore.edit { preferences ->
-            preferences[TOKEN_KEY] = token
+    override fun getRefreshToken(): Flow<String?> {
+        return dataStore.data.map { preferences ->
+            preferences[REFRESH_TOKEN_KEY]
         }
     }
 
-    override suspend fun deleteToken() {
+    override suspend fun saveTokens(accessToken: String, refreshToken: String) {
         dataStore.edit { preferences ->
-            preferences.remove(TOKEN_KEY)
+            preferences[ACCESS_TOKEN_KEY] = accessToken
+            preferences[REFRESH_TOKEN_KEY] = refreshToken
+        }
+    }
+
+    override suspend fun deleteTokens() {
+        dataStore.edit { preferences ->
+            preferences.remove(ACCESS_TOKEN_KEY)
+            preferences.remove(REFRESH_TOKEN_KEY)
         }
     }
 }

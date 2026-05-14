@@ -4,10 +4,12 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * JWT Token yönetimi için arayüz.
- * Single Source of Truth (SSoT) prensibi gereği tüm uygulama token bilgisini buradan alır.
+ * Access ve Refresh Token (RTR) desteği sağlar.
  */
 interface TokenManager {
-    fun getToken(): Flow<String?>
-    suspend fun saveToken(token: String)
-    suspend fun deleteToken()
+    fun getAccessToken(): Flow<String?>
+    fun getRefreshToken(): Flow<String?>
+    
+    suspend fun saveTokens(accessToken: String, refreshToken: String)
+    suspend fun deleteTokens()
 }
