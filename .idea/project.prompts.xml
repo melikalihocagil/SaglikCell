@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PromptTemplates">
+    <option name="builtInPromptOverrides">
+      <list>
+        <BuiltInPromptOverride>
+          <option name="groupId" value="rules" />
+          <option name="promptId" value="project" />
+          <option name="text" value="Dil Kuralları: Kod içerisindeki tüm teknik kavramlar (sınıf, değişken, fonksiyon adları) İngilizce olmalı; ancak tüm sınıf açıklamaları, dökümantasyon ve bana vereceğin yanıtlar tamamen Türkçe olmalıdır.&#10;&#10;Single Source of Truth (SSoT): Tüm veri akışını yönetmek için Repository Pattern kullan. Repository, UI katmanı için tek doğruluk kaynağı olmalıdır.&#10;&#10;State Management (UDF): UI katmanında Unidirectional Data Flow prensibini uygula. Her ekran için State (tek bir state nesnesi), Event (kullanıcı etkileşimleri) ve Effect (tek seferlik olaylar) yapılarını içeren bir ViewModel kurgula.&#10;&#10;Network (Ktor): API istekleri için Ktor kullan. Auth Plugin (Bearer) ile refreshTokens bloğunu yapılandırarak 401 Unauthorized durumunda token yenileme mekanizmasını (Token Refresh) otomatik hale getir.&#10;&#10;&#10;Güvenlik: JWT token'larını saklamak için EncryptedSharedPreferences veya Encrypted DataStore kullanan bir TokenManager sınıfı oluştur.&#10;&#10;&#10;Bağımlılık Yönetimi (DI): Proje genelinde bağımlılık yönetimi için Koin kullan." />
+        </BuiltInPromptOverride>
+      </list>
+    </option>
+  </component>
+</project>
